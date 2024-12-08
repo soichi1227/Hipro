@@ -1,0 +1,10 @@
+nav{
+  border-bottom: 1px solid silver;
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+nav > a {
+    margin-left: 8px;
+}
