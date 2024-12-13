@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // 動的ルートパラメータを取得するために利用
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-const SelectDatePage = () => {
+const SelectDatePage = ({ params }) => {
   const router = useRouter();
-  const { id: dealId } = router.query; // URLから `id` を取得
+  const { id: dealId } = params;
   const [candidateDates, setCandidateDates] = useState([]);
   const [duration, setDuration] = useState("");
   const [meetingMethod, setMeetingMethod] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!dealId) return; // dealIdがロードされていない場合はスキップ
+    if (!dealId) {
+      setError("Invalid deal ID");
+      return;
+    }
 
     const fetchCandidateData = async () => {
       try {
@@ -27,8 +31,8 @@ const SelectDatePage = () => {
         setCandidateDates(formattedDates);
         setDuration(data.duration);
         setMeetingMethod(data.meeting_method);
-      } catch (error) {
-        console.error("データ取得に失敗しました:", error);
+      } catch (err) {
+        setError(err.message);
       }
     };
 
@@ -36,7 +40,7 @@ const SelectDatePage = () => {
   }, [dealId]);
 
   const handleCheckboxChange = (index) => {
-    setSelectedIndex(index); // 選択された日時を保存
+    setSelectedIndex(index);
   };
 
   const handleNavigate = async (e) => {
@@ -60,13 +64,15 @@ const SelectDatePage = () => {
         const result = await response.json();
         console.log(result.message);
 
-        // 確定後、質問画面に遷移
+        // 確定後、別画面に遷移
         router.push("/question");
       } catch (error) {
-        console.error("日時の保存に失敗しました:", error);
+        setError(error.message);
       }
     }
   };
+
+  if (error) return <p>{error}</p>;
 
   return (
     <div>
